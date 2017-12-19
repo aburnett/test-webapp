@@ -1,12 +1,13 @@
 'use strict';
 
-exports.get = function (event, context) {
+exports.get = function (event, context, callback) {
     var contents = {
-        "msg": "Hello, " + event.name
+        "msg": "Hello, " + event.pathParameters.name
     };
-    context.succeed({
+    var res = {
         statusCode: 200,
-        body: contents,
+        body: JSON.stringify(contents),
         headers: { 'Content-Type': 'application/json' }
-    });
+    };
+    callback(null, res);
 };

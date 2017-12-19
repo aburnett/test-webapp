@@ -13,7 +13,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: hello.get
-      Runtime: nodejs4.3
+      Runtime: nodejs6.10
       Role:
         Fn::ImportValue:
           !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
@@ -23,11 +23,12 @@ Resources:
           Properties:
             Path: /hello/{name}
             Method: get
+
   GetIndex:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.get
-      Runtime: nodejs4.3
+      Runtime: nodejs6.10
       Role:
         Fn::ImportValue:
           !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
@@ -37,3 +38,58 @@ Resources:
           Properties:
             Path: /
             Method: get
+  
+  GetCustomer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: resource.get
+      Runtime: nodejs6.10
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CustomerTable
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /customer/{resourceId}
+            Method: get
+
+  PutCustomer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: resource.put
+      Runtime: nodejs6.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CustomerTable
+      Events:
+        PutResource:
+          Type: Api
+          Properties:
+            Path: /customer/{resourceId}
+            Method: put
+
+  DeleteCustomer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: resource.delete
+      Runtime: nodejs6.10
+      Policies: AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CustomerTable
+      Events:
+        DeleteResource:
+          Type: Api
+          Properties:
+            Path: /customer/{resourceId}
+            Method: delete
+
+  CustomerTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+       PrimaryKey:
+         Name: id
+         Type: String
