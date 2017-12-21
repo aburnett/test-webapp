@@ -13,6 +13,20 @@ const createResponse = (statusCode, body) => {
     }
 };
 
+exports.getAll = (event, context, callback) => {
+    let params = {
+        TableName: tableName,
+        limit: 50
+    };
+
+    let dbGet = (params) => { return dynamo.scan(params).promise() };
+    dbGet(params).then( (data) => {
+        callback(null, createResponse(200, data.Items));
+    }).catch((err) => {
+        callback(null, createResponse(500, err))
+    });
+}
+
 exports.get = (event, context, callback) => {
 
     let params = {
